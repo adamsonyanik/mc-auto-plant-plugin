@@ -19,26 +19,26 @@ import java.util.List;
 
 public class DispenseEventListener implements Listener {
 
-    record GroundPlant(Material plant, List<Material> ground) {
+    record GroundPlant(Material plant, List<Material> ground, boolean canFloat) {
     }
 
     private static final HashMap<Material, GroundPlant> items = new HashMap<>();
 
     static {
-        items.put(Material.POTATO, new GroundPlant(Material.POTATOES, List.of(Material.FARMLAND)));
-        items.put(Material.CARROT, new GroundPlant(Material.CARROTS, List.of(Material.FARMLAND)));
-        items.put(Material.WHEAT_SEEDS, new GroundPlant(Material.WHEAT, List.of(Material.FARMLAND)));
-        items.put(Material.BEETROOT_SEEDS, new GroundPlant(Material.BEETROOTS, List.of(Material.FARMLAND)));
-        items.put(Material.MELON_SEEDS, new GroundPlant(Material.MELON_STEM, List.of(Material.FARMLAND)));
-        items.put(Material.PUMPKIN_SEEDS, new GroundPlant(Material.PUMPKIN_STEM, List.of(Material.FARMLAND)));
+        items.put(Material.POTATO, new GroundPlant(Material.POTATOES, List.of(Material.FARMLAND), false));
+        items.put(Material.CARROT, new GroundPlant(Material.CARROTS, List.of(Material.FARMLAND), false));
+        items.put(Material.WHEAT_SEEDS, new GroundPlant(Material.WHEAT, List.of(Material.FARMLAND), false));
+        items.put(Material.BEETROOT_SEEDS, new GroundPlant(Material.BEETROOTS, List.of(Material.FARMLAND), false));
+        items.put(Material.MELON_SEEDS, new GroundPlant(Material.MELON_STEM, List.of(Material.FARMLAND), false));
+        items.put(Material.PUMPKIN_SEEDS, new GroundPlant(Material.PUMPKIN_STEM, List.of(Material.FARMLAND), false));
 
-        items.put(Material.ACACIA_SAPLING, new GroundPlant(Material.ACACIA_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK)));
-        items.put(Material.BIRCH_SAPLING, new GroundPlant(Material.BIRCH_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK)));
-        items.put(Material.OAK_SAPLING, new GroundPlant(Material.OAK_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK)));
-        items.put(Material.SPRUCE_SAPLING, new GroundPlant(Material.SPRUCE_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK)));
-        items.put(Material.JUNGLE_SAPLING, new GroundPlant(Material.JUNGLE_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK)));
-        items.put(Material.DARK_OAK_SAPLING, new GroundPlant(Material.DARK_OAK_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK)));
-        items.put(Material.MANGROVE_PROPAGULE, new GroundPlant(Material.MANGROVE_PROPAGULE, List.of(Material.DIRT, Material.GRASS_BLOCK)));
+        items.put(Material.ACACIA_SAPLING, new GroundPlant(Material.ACACIA_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK), false));
+        items.put(Material.BIRCH_SAPLING, new GroundPlant(Material.BIRCH_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK), false));
+        items.put(Material.OAK_SAPLING, new GroundPlant(Material.OAK_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK), false));
+        items.put(Material.SPRUCE_SAPLING, new GroundPlant(Material.SPRUCE_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK), false));
+        items.put(Material.JUNGLE_SAPLING, new GroundPlant(Material.JUNGLE_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK), false));
+        items.put(Material.DARK_OAK_SAPLING, new GroundPlant(Material.DARK_OAK_SAPLING, List.of(Material.DIRT, Material.GRASS_BLOCK), false));
+        items.put(Material.MANGROVE_PROPAGULE, new GroundPlant(Material.MANGROVE_PROPAGULE, List.of(Material.DIRT, Material.GRASS_BLOCK), false));
     }
 
     @EventHandler
@@ -46,8 +46,24 @@ public class DispenseEventListener implements Listener {
         if (event.getBlock().getType() != Material.DISPENSER) return;
 
         Material m = event.getItem().getType();
-        if (!items.containsKey(m)) return;
 
+        if (m.isBlock()) {
+            Block targetBlock = event.getBlock().getRelative(getDirection(event.getVelocity()));
+
+            if (targetBlock.getType() != Material.AIR) {
+                event.setCancelled(true);
+                return;
+            }
+
+            event.setCancelled(true);
+            deleteItem(((Dispenser) event.getBlock().getState()).getInventory(), m);
+            targetBlock.setType(m);
+        } else if (items.containsKey(m)) {
+            handleCrop(event, m);
+        }
+    }
+
+    private void handleCrop(BlockDispenseEvent event, Material m) {
         Block targetBlock = event.getBlock().getRelative(getDirection(event.getVelocity()));
 
         GroundPlant groundPlant = items.get(m);
