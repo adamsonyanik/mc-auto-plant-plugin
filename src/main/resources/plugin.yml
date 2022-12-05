@@ -1,0 +1,4 @@
+name: AutoPlant
+version: 1.0
+main: io.github.adamson.MCAutoPlant
+api-version: 1.19
