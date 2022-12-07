@@ -183,7 +183,7 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
     public void onPlayerInteract(PlayerInteractEvent e) {
         Location location;
         Turtle turtle;
-        if (e.getClickedBlock() != null && e.getAction() == Action.RIGHT_CLICK_BLOCK && (turtle = repository.getTurtle((location = e.getClickedBlock().getLocation()).getBlockX(), location.getBlockY(), location.getBlockZ())) != null) {
+        if (e.getClickedBlock() != null && e.getAction() == Action.RIGHT_CLICK_BLOCK && !(e.getItem() != null && e.getPlayer().isSneaking()) && (turtle = repository.getTurtle((location = e.getClickedBlock().getLocation()).getBlockX(), location.getBlockY(), location.getBlockZ())) != null) {
             if (!turtle.getOwner().equals(e.getPlayer().getUniqueId()) && !e.getPlayer().hasPermission("turtle.inventory.others")) {
                 return;
             }

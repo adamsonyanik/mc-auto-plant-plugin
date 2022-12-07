@@ -26,7 +26,7 @@ public class TurtleRepositoryWorld implements ITurtleRepository {
     }
 
     public Turtle createTurtle(UUID owner, int x, int y, int z) {
-        Turtle turtle = new Turtle(x, y, z, owner, Bukkit.createInventory(null, 9, "Turtle"), this);
+        Turtle turtle = new Turtle(x, y, z, owner, Bukkit.createInventory(null, 27, "Turtle"), this);
         this.turtles.add(turtle);
         return turtle;
     }
