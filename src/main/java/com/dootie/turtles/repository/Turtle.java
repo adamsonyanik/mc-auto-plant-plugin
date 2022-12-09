@@ -3,13 +3,14 @@ package com.dootie.turtles.repository;
 import com.dootie.turtles.executer.Executer;
 import org.bukkit.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.Iterator;
 import java.util.UUID;
 
-public class Turtle {
+public class Turtle implements InventoryHolder {
     public static final int SCRIPT_SLOT = 0;
     private int x;
     private int y;
@@ -20,11 +21,10 @@ public class Turtle {
     private final ITurtleRepository repository;
     public Executer executer;
 
-    public Turtle(int x, int y, int z, UUID owner, Inventory inventory, ITurtleRepository repository) {
+    Turtle(int x, int y, int z, Inventory inventory, ITurtleRepository repository) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.owner = owner;
         this.inventory = inventory;
         this.repository = repository;
     }
@@ -63,14 +63,6 @@ public class Turtle {
 
     public void setZ(int z) {
         this.z = z;
-    }
-
-    public UUID getOwner() {
-        return this.owner;
-    }
-
-    public void setOwner(UUID owner) {
-        this.owner = owner;
     }
 
     public Inventory getInventory() {

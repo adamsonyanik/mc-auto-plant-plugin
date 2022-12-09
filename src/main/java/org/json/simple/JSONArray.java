@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class JSONArray extends ArrayList implements JSONAware, JSONStreamAware {
+public class JSONArray extends ArrayList<JSONObject> implements JSONAware, JSONStreamAware {
     private static final long serialVersionUID = 3957988303675231981L;
 
     public JSONArray() {
     }
 
-    public JSONArray(Collection c) {
+    public JSONArray(Collection<JSONObject> c) {
         super(c);
     }
 

@@ -7,17 +7,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class JSONObject extends HashMap implements Map, JSONAware, JSONStreamAware {
+public class JSONObject extends HashMap<String, Object> implements Map<String, Object>, JSONAware, JSONStreamAware {
     private static final long serialVersionUID = -503443796854799292L;
 
     public JSONObject() {
     }
 
-    public JSONObject(Map map) {
+    public JSONObject(Map<String, Object> map) {
         super(map);
     }
 
-    public static void writeJSONString(Map map, Writer out) throws IOException {
+    public static void writeJSONString(Map<String, Object> map, Writer out) throws IOException {
         if (map == null) {
             out.write("null");
         } else {
@@ -32,7 +32,7 @@ public class JSONObject extends HashMap implements Map, JSONAware, JSONStreamAwa
                     out.write(44);
                 }
 
-                Map.Entry entry = (Map.Entry) iter.next();
+                Map.Entry<String, Object> entry = (Map.Entry<String, Object>) iter.next();
                 out.write(34);
                 out.write(escape(String.valueOf(entry.getKey())));
                 out.write(34);

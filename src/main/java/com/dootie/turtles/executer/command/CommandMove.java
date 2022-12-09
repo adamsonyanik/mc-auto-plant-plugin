@@ -29,9 +29,8 @@ public class CommandMove extends Command {
                 turtle.setX(coordinates[0]);
                 turtle.setY(coordinates[1]);
                 turtle.setZ(coordinates[2]);
-                this.parser.getWorld().getBlockAt(coordinates[0], coordinates[1], coordinates[2]).setType(MCAutoPlant.blockTurtle.getType());
+                this.parser.getWorld().getBlockAt(coordinates[0], coordinates[1], coordinates[2]).setType(MCAutoPlant.turtleItem.getType());
             }
-
         }
     }
 }

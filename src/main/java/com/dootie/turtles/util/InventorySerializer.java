@@ -21,7 +21,7 @@ public class InventorySerializer {
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
             dataOutput.writeInt(inventory.getSize());
             // TODO: get inventory title, over inventoryView ?
-            dataOutput.writeUTF("Inventory Title cyka");
+            dataOutput.writeUTF("Turtle");
 
             for (int i = 0; i < inventory.getSize(); ++i) {
                 dataOutput.writeObject(inventory.getItem(i));
@@ -46,8 +46,8 @@ public class InventorySerializer {
 
             dataInput.close();
             return inventory;
-        } catch (ClassNotFoundException var5) {
-            throw new IOException("Unable to decode class type.", var5);
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Unable to decode class type.", e);
         }
     }
 }

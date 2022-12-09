@@ -4,14 +4,13 @@ import com.dootie.turtles.executer.CommandResolver;
 import com.dootie.turtles.executer.PlaceholderResolver;
 import com.dootie.turtles.executer.command.*;
 import com.dootie.turtles.executer.placeholders.BlockTypePlaceholder;
-import com.dootie.turtles.executer.placeholders.OwnerPlaceholder;
 import com.dootie.turtles.repository.ITurtleRepository;
 import com.dootie.turtles.repository.Turtle;
 import com.dootie.turtles.repository.TurtleRepositoryWorld;
 import com.dootie.turtles.storage.IStorage;
 import com.dootie.turtles.storage.StorageException;
 import com.dootie.turtles.storage.StorageJson;
-import com.dootie.turtles.util.ItemStackBuilder;
+import com.dootie.turtles.util.Skull;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -23,14 +22,19 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Level;
 
 public class MCAutoPlant extends JavaPlugin implements Listener {
@@ -38,8 +42,7 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
     public static ITurtleRepository repository;
     public static IStorage storage;
     public static ShapedRecipe recipeTurtle;
-    public static ItemStack blockTurtle;
-    public static ItemStack itemTurtle;
+    public static ItemStack turtleItem;
 
     public void onEnable() {
         this.enable();
@@ -48,10 +51,9 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
     public void enable() {
         plugin = this;
         repository = new TurtleRepositoryWorld();
-        storage = new StorageJson(repository, new File("turtles.json"));
-        blockTurtle = ItemStackBuilder.start().setName("§9Turtle").setType(Material.WITHER_SKELETON_SKULL).get();
-        itemTurtle = ItemStackBuilder.start().setName("§9Turtle").setType(Material.WITHER_SKELETON_SKULL).get();
-        recipeTurtle = new ShapedRecipe(itemTurtle);
+        storage = new StorageJson(repository, new File("plugins/AutoPlant/turtles.json"));
+        turtleItem = Skull.getCustomTextureHead("Turtle", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTIyODRlMTMyYmZkNjU5YmM2YWRhNDk3YzRmYTMwOTRjZDkzMjMxYTZiNTA1YTEyY2U3Y2Q1MTM1YmE4ZmY5MyJ9fX0=");
+        recipeTurtle = new ShapedRecipe(turtleItem);
         this.getServer().getPluginManager().registerEvents(this, this);
         this.addRecipes();
         this.readStorage();
@@ -72,8 +74,8 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
 
         try {
             storage.read();
-        } catch (StorageException var2) {
-            this.getLogger().log(Level.SEVERE, "Could not read turtles to storage: {0}", var2);
+        } catch (StorageException e) {
+            this.getLogger().log(Level.SEVERE, "Could not read turtles to storage: {0}", e);
         }
 
         System.out.println("[Turtles] Turtles loaded.");
@@ -101,15 +103,6 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
         PlaceholderResolver.placeholders.put("%block west type%", new BlockTypePlaceholder());
         PlaceholderResolver.placeholders.put("%block up type%", new BlockTypePlaceholder());
         PlaceholderResolver.placeholders.put("%block down type%", new BlockTypePlaceholder());
-        PlaceholderResolver.placeholders.put("%owner name%", new OwnerPlaceholder());
-        PlaceholderResolver.placeholders.put("%owner uuid%", new OwnerPlaceholder());
-
-        for (int i = 0; i < 9; ++i) {
-            PlaceholderResolver.placeholders.put("%slot " + i + " type%", new OwnerPlaceholder());
-            PlaceholderResolver.placeholders.put("%slot " + i + " amount%", new OwnerPlaceholder());
-            PlaceholderResolver.placeholders.put("%slot " + i + " damage%", new OwnerPlaceholder());
-            PlaceholderResolver.placeholders.put("%slot " + i + " maxdamage%", new OwnerPlaceholder());
-        }
 
         System.out.println("[Turtles] Placeholders registered.");
     }
@@ -133,9 +126,9 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (e.getItemInHand() != null && e.getItemInHand().getItemMeta() != null && e.getItemInHand().getItemMeta().hasDisplayName() && e.getItemInHand().getItemMeta().getDisplayName().equals(blockTurtle.getItemMeta().getDisplayName())) {
+        if (e.getItemInHand() != null && e.getItemInHand().getItemMeta() != null && e.getItemInHand().getItemMeta().hasDisplayName() && e.getItemInHand().getItemMeta().getDisplayName().equals(turtleItem.getItemMeta().getDisplayName())) {
             Location location = e.getBlockPlaced().getLocation();
-            repository.createTurtle(e.getPlayer().getUniqueId(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+            repository.createTurtle(location.getBlockX(), location.getBlockY(), location.getBlockZ());
             e.getPlayer().sendMessage("The turtle is succesfully placed.");
         }
 
@@ -147,13 +140,9 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
         Turtle turtle = repository.getTurtle(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         if (turtle != null) {
             e.setCancelled(true);
-            if (!turtle.getOwner().equals(e.getPlayer().getUniqueId()) && !e.getPlayer().hasPermission("turtle.destroy.others")) {
-                return;
-            }
-
             try {
                 turtle.executer.stop();
-            } catch (NullPointerException var9) {
+            } catch (NullPointerException ignored) {
             }
 
             repository.removeTurtle(turtle.getX(), turtle.getY(), turtle.getZ());
@@ -161,15 +150,14 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
             world.getBlockAt(turtle.getX(), turtle.getY(), turtle.getZ()).setType(Material.AIR);
             ItemStack[] inventoryStacks = turtle.getInventory().getContents();
 
-            for (int i = 0; i < inventoryStacks.length; i++) {
-                ItemStack item = inventoryStacks[i];
+            for (ItemStack item : inventoryStacks) {
                 if (item != null) {
                     world.dropItemNaturally(turtle.getLocation(e.getBlock().getWorld()), item.clone());
                 }
             }
 
             if (e.getPlayer() == null || e.getPlayer() == null || e.getPlayer().getGameMode() != GameMode.CREATIVE) {
-                world.dropItemNaturally(turtle.getLocation(world), blockTurtle.clone());
+                world.dropItemNaturally(turtle.getLocation(world), turtleItem.clone());
             }
 
             if (e.getPlayer() != null) {
@@ -184,10 +172,6 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
         Location location;
         Turtle turtle;
         if (e.getClickedBlock() != null && e.getAction() == Action.RIGHT_CLICK_BLOCK && !(e.getItem() != null && e.getPlayer().isSneaking()) && (turtle = repository.getTurtle((location = e.getClickedBlock().getLocation()).getBlockX(), location.getBlockY(), location.getBlockZ())) != null) {
-            if (!turtle.getOwner().equals(e.getPlayer().getUniqueId()) && !e.getPlayer().hasPermission("turtle.inventory.others")) {
-                return;
-            }
-
             e.getPlayer().openInventory(turtle.getInventory());
             e.setUseInteractedBlock(Event.Result.ALLOW);
             e.setUseItemInHand(Event.Result.DENY);
@@ -202,8 +186,29 @@ public class MCAutoPlant extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onWorldSave(WorldSaveEvent e) {
+    public void onWorldSaveEvent(WorldSaveEvent e) {
         storage.save();
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        InventoryHolder holder = event.getInventory().getHolder();
+        Inventory inv = holder.getInventory();
+
+        if (event.getView().getTitle().equals("Turtle")) {
+            if (event.getSlot() >= 27) {
+                event.setCancelled(true);
+
+                if (event.getSlot() == 27) {
+                    ItemStack item = new ItemStack(Material.LIME_WOOL);
+                    ItemMeta meta = item.getItemMeta();
+                    meta.setDisplayName("§fStart");
+                    meta.setLore(List.of("O holy stone", "Ye who protects me from evil"));
+                    item.setItemMeta(meta);
+                    event.getInventory().setItem(26, item);
+                }
+            }
+        }
     }
 }
 

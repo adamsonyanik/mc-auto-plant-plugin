@@ -1,11 +1,11 @@
 package com.dootie.turtles.repository;
 
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 public class TurtleRepositoryWorld implements ITurtleRepository {
     private List<Turtle> turtles = new ArrayList();
@@ -25,8 +25,10 @@ public class TurtleRepositoryWorld implements ITurtleRepository {
 
     }
 
-    public Turtle createTurtle(UUID owner, int x, int y, int z) {
-        Turtle turtle = new Turtle(x, y, z, owner, Bukkit.createInventory(null, 27, "Turtle"), this);
+    public Turtle createTurtle(int x, int y, int z) {
+        Turtle turtle = new Turtle(x, y, z, null, this);
+        Inventory inventory = Bukkit.createInventory(turtle, 27, "Turtle");
+        turtle.setInventory(inventory);
         this.turtles.add(turtle);
         return turtle;
     }

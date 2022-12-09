@@ -6,6 +6,7 @@ import io.github.adamson.MCAutoPlant;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class Executer {
         this.turtle.executer = this;
     }
 
-    public void parse() {
+    public void parse(Player executor) {
         this.lineNumber = 0;
         this.parser = this;
         if (this.getScript() == null) {
@@ -38,12 +39,12 @@ public class Executer {
 
         if (!this.turtle.isBusy()) {
             this.turtle.setBusy(true);
-            this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(MCAutoPlant.plugin, Executer.this::execute, 0L, 20 / this.speed);
+            this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(MCAutoPlant.plugin, () -> this.execute(executor), 0L, 20 / this.speed);
             this.lineNumber = 0;
         }
     }
 
-    public void execute() {
+    public void execute(Player executor) {
         try {
             this.nextLine = 0;
             String[] lines = this.turtle.getScript().split(";");
@@ -75,8 +76,8 @@ public class Executer {
                 this.turtle.setBusy(false);
                 Bukkit.getServer().getScheduler().cancelTask(this.task);
             }
-        } catch (IndexOutOfBoundsException var5) {
-            Bukkit.getServer().getPlayer(this.turtle.getOwner()).sendMessage("Error in the script. Missing ';'");
+        } catch (IndexOutOfBoundsException e) {
+            executor.sendMessage("Error in the script. Missing ';'");
             this.turtle.setBusy(false);
             this.stop();
         }
