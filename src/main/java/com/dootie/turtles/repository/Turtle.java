@@ -1,44 +1,60 @@
 package com.dootie.turtles.repository;
 
-import com.dootie.turtles.executer.Executer;
-import org.bukkit.*;
+import com.dootie.turtles.executer.Executor;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.Iterator;
-import java.util.UUID;
 
 public class Turtle implements InventoryHolder {
     public static final int SCRIPT_SLOT = 0;
+    private World world;
     private int x;
     private int y;
     private int z;
-    private boolean busy;
-    private UUID owner;
     private Inventory inventory;
     private final ITurtleRepository repository;
-    public Executer executer;
 
-    Turtle(int x, int y, int z, Inventory inventory, ITurtleRepository repository) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    private Executor executor;
+
+    Turtle(Location location, Inventory inventory, ITurtleRepository repository) {
+        this.world = location.getWorld();
+        this.x = location.getBlockX();
+        this.y = location.getBlockY();
+        this.z = location.getBlockZ();
         this.inventory = inventory;
         this.repository = repository;
     }
 
-    public void setBusy(boolean busy) {
-        this.busy = busy;
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
+    }
+
+    public void removeExecutor() {
+        this.executor = null;
+        this.sendInfo("Turtle stopped the script.");
     }
 
     public boolean isBusy() {
-        return this.busy;
+        return this.executor != null;
     }
 
     public ITurtleRepository getTurtleRepository() {
         return this.repository;
+    }
+
+    public World getWorld() {
+        return this.world;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
     }
 
     public int getX() {
@@ -74,10 +90,10 @@ public class Turtle implements InventoryHolder {
     }
 
     public ItemStack getScriptSlot() {
-        return this.inventory.getItem(0);
+        return this.inventory.getItem(SCRIPT_SLOT);
     }
 
-    public Location getLocation(World world) {
+    public Location getLocation() {
         return new Location(world, this.x, this.y, this.z);
     }
 
@@ -88,7 +104,7 @@ public class Turtle implements InventoryHolder {
             BookMeta bookMeta = (BookMeta) itemStack.getItemMeta();
 
             String page;
-            for (Iterator var4 = bookMeta.getPages().iterator(); var4.hasNext(); script = script + page) {
+            for (Iterator<String> var4 = bookMeta.getPages().iterator(); var4.hasNext(); script = script + page) {
                 page = (String) var4.next();
             }
         }
@@ -102,8 +118,8 @@ public class Turtle implements InventoryHolder {
     }
 
     public void sendMessage(String message) {
-        if (Bukkit.getPlayer(this.owner) != null) {
-            Bukkit.getPlayer(this.owner).sendMessage(ChatColor.BOLD + "[Turtle]" + ChatColor.RESET + " [" + this.x + ", " + this.y + ", " + this.z + "] " + message);
+        if (this.executor != null && this.executor.getPlayer() != null) {
+            this.executor.getPlayer().sendMessage(ChatColor.BOLD + "[Turtle]" + ChatColor.RESET + " [" + this.x + ", " + this.y + ", " + this.z + "] " + message);
         }
 
     }
@@ -118,5 +134,11 @@ public class Turtle implements InventoryHolder {
 
     public void sendError(String error) {
         this.sendMessage(ChatColor.RED + error);
+    }
+
+    public void stop() {
+        if (this.executor != null) {
+            this.executor.stop();
+        }
     }
 }

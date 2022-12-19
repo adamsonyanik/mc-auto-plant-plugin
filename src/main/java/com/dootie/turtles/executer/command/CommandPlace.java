@@ -1,6 +1,6 @@
 package com.dootie.turtles.executer.command;
 
-import com.dootie.turtles.executer.Executer;
+import com.dootie.turtles.executer.Executor;
 import com.dootie.turtles.repository.Turtle;
 import com.dootie.turtles.util.DirectionHelper;
 import org.bukkit.Material;
@@ -22,20 +22,17 @@ public class CommandPlace extends Command {
         ITEM_CONVERSIONS.put(Material.PUMPKIN_SEEDS, Material.PUMPKIN_STEM);
     }
 
-    public CommandPlace() {
-    }
-
-    public void execute(Executer parser, String[] arguments) {
-        if (arguments.length == 1) {
-            Turtle turtle = parser.getTurtle();
-            ItemStack stack = parser.getTurtle().getInventory().getItem(parser.getCurrentSelectedSlot());
-            String direction = arguments[0];
+    public void execute(Executor executor, String[] args) {
+        if (args.length == 1) {
+            Turtle turtle = executor.getTurtle();
+            ItemStack stack = executor.getTurtle().getInventory().getItem(executor.getCurrentSelectedSlot());
+            String direction = args[0];
             if (!DirectionHelper.isValidDirection(direction)) {
-                parser.getTurtle().sendError("Invalid direction given: " + direction + ".");
+                executor.getTurtle().sendError("Invalid direction given: " + direction + ".");
             }
 
             int[] coordinates = DirectionHelper.getCoordinates(direction, turtle.getX(), turtle.getY(), turtle.getZ());
-            Block block = parser.getWorld().getBlockAt(coordinates[0], coordinates[1], coordinates[2]);
+            Block block = executor.getTurtle().getWorld().getBlockAt(coordinates[0], coordinates[1], coordinates[2]);
             if (block.getType() == Material.AIR && stack != null && (stack.getType().isBlock() || ITEM_CONVERSIONS.containsKey(stack.getType()))) {
                 Material typeToPlace = stack.getType();
                 if (ITEM_CONVERSIONS.containsKey(stack.getType())) {
@@ -45,7 +42,7 @@ public class CommandPlace extends Command {
                 block.setType(typeToPlace);
                 stack.setAmount(stack.getAmount() - 1);
                 if (stack.getAmount() <= 0) {
-                    turtle.getInventory().setItem(parser.getCurrentSelectedSlot(), null);
+                    turtle.getInventory().setItem(executor.getCurrentSelectedSlot(), null);
                 }
             }
 

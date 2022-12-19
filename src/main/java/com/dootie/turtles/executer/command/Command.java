@@ -1,10 +1,10 @@
 package com.dootie.turtles.executer.command;
 
-import com.dootie.turtles.executer.Executer;
+import com.dootie.turtles.executer.Executor;
 
 public abstract class Command {
     public Command() {
     }
 
-    public abstract void execute(Executer var1, String[] var2);
+    public abstract void execute(Executor executor, String[] args);
 }

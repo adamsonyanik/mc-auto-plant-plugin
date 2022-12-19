@@ -15,7 +15,7 @@ public class CommandResolver {
         this.arguments = arguments;
     }
 
-    public Command resolve(Executer parser) {
+    public Command resolve(Executor parser) {
         return (Command) commands.get(this.name);
     }
 }

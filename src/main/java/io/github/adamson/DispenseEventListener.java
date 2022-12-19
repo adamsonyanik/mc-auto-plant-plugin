@@ -106,7 +106,7 @@ public class DispenseEventListener implements Listener {
     record BlockFaceVectors(BlockFace face, Vector vector) {
     }
 
-    private static List<BlockFaceVectors> faces = List.of(new BlockFaceVectors(BlockFace.UP, new Vector(0, 1, 0)),
+    private static final List<BlockFaceVectors> faces = List.of(new BlockFaceVectors(BlockFace.UP, new Vector(0, 1, 0)),
             new BlockFaceVectors(BlockFace.DOWN, new Vector(0, -1, 0)),
             new BlockFaceVectors(BlockFace.NORTH, new Vector(0, 0, -1)),
             new BlockFaceVectors(BlockFace.EAST, new Vector(1, 0, 0)),

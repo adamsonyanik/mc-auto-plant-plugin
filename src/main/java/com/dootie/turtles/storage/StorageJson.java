@@ -4,6 +4,8 @@ import com.dootie.turtles.repository.ITurtleRepository;
 import com.dootie.turtles.repository.Turtle;
 import com.dootie.turtles.util.InventorySerializer;
 import com.google.common.base.Joiner;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -33,10 +35,11 @@ public class StorageJson implements IStorage {
                 JSONArray turtles = (JSONArray) JSONValue.parse(data);
 
                 for (JSONObject turtleObject : turtles) {
+                    String world = (String) turtleObject.get("world");
                     long x = (Long) turtleObject.get("x");
                     long y = (Long) turtleObject.get("y");
                     long z = (Long) turtleObject.get("z");
-                    Turtle turtle = this.repository.createTurtle((int) x, (int) y, (int) z);
+                    Turtle turtle = this.repository.createTurtle(new Location(Bukkit.getWorld(world), x, y, z));
                     turtle.setInventory(InventorySerializer.fromBase64((String) turtleObject.get("inventory")));
                 }
 
@@ -51,6 +54,7 @@ public class StorageJson implements IStorage {
 
         for (Turtle turtle : this.repository.getTurtles()) {
             JSONObject turtleObject = new JSONObject();
+            turtleObject.put("world", turtle.getWorld().getName());
             turtleObject.put("x", turtle.getX());
             turtleObject.put("y", turtle.getY());
             turtleObject.put("z", turtle.getZ());

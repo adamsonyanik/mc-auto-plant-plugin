@@ -1,6 +1,7 @@
 package com.dootie.turtles.repository;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
@@ -25,8 +26,8 @@ public class TurtleRepositoryWorld implements ITurtleRepository {
 
     }
 
-    public Turtle createTurtle(int x, int y, int z) {
-        Turtle turtle = new Turtle(x, y, z, null, this);
+    public Turtle createTurtle(Location location) {
+        Turtle turtle = new Turtle(location, null, this);
         Inventory inventory = Bukkit.createInventory(turtle, 27, "Turtle");
         turtle.setInventory(inventory);
         this.turtles.add(turtle);

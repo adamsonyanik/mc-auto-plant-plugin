@@ -1,31 +1,24 @@
 package com.dootie.turtles.executer.command;
 
-import com.dootie.turtles.executer.Executer;
+import com.dootie.turtles.executer.Executor;
 
 public class CommandSelect extends Command {
-    Executer parser;
-    String[] arguments;
 
-    public CommandSelect() {
-    }
-
-    public void execute(Executer parser, String[] arguments) {
-        this.parser = parser;
-        this.arguments = arguments;
-        if (this.arguments.length == 1) {
+    public void execute(Executor executor, String[] args) {
+        if (args.length == 1) {
             int slot = 0;
 
             try {
-                slot = Integer.parseInt(this.arguments[0]);
-            } catch (NumberFormatException var5) {
-                parser.getTurtle().sendMessage("Invalid number: " + this.arguments[0] + ".");
+                slot = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                executor.getTurtle().sendMessage("Invalid number: " + args[0] + ".");
             }
 
-            if (slot < 0 || slot > this.parser.getTurtle().getInventory().getSize() - 1) {
-                parser.getTurtle().sendError("Slot out of range: " + slot + ".");
+            if (slot < 0 || slot > executor.getTurtle().getInventory().getSize() - 1) {
+                executor.getTurtle().sendError("Slot out of range: " + slot + ".");
             }
 
-            this.parser.setCurrentSelectedSlot(slot);
+            executor.setCurrentSelectedSlot(slot);
         }
     }
 }

@@ -1,11 +1,11 @@
 package com.dootie.turtles.executer.command;
 
-import com.dootie.turtles.executer.Executer;
+import com.dootie.turtles.executer.Executor;
 
 public class CommandComment extends Command {
     public CommandComment() {
     }
 
-    public void execute(Executer parser, String[] arguments) {
+    public void execute(Executor parser, String[] arguments) {
     }
 }

@@ -1,18 +1,11 @@
 package com.dootie.turtles.executer.command;
 
-import com.dootie.turtles.executer.Executer;
+import com.dootie.turtles.executer.Executor;
 
 public class CommandGoto extends Command {
-    Executer parser;
-    String[] arguments;
 
-    public CommandGoto() {
-    }
-
-    public void execute(Executer parser, String[] arguments) {
-        this.parser = parser;
-        this.arguments = arguments;
-        if (this.arguments.length == 1) {
+    public void execute(Executor parser, String[] arguments) {
+        if (arguments.length == 1) {
             parser.setLineNumber(Integer.parseInt(arguments[0]));
         }
 

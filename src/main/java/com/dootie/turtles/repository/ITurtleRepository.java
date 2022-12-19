@@ -1,5 +1,7 @@
 package com.dootie.turtles.repository;
 
+import org.bukkit.Location;
+
 import java.util.List;
 
 public interface ITurtleRepository {
@@ -7,7 +9,7 @@ public interface ITurtleRepository {
 
     void removeTurtle(int x, int y, int z);
 
-    Turtle createTurtle(int x, int y, int z);
+    Turtle createTurtle(Location location);
 
     Turtle getTurtle(int x, int y, int z);
 }
