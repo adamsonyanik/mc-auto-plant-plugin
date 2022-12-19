@@ -46,8 +46,10 @@ public class DispenseEventListener implements Listener {
         if (event.getBlock().getType() != Material.DISPENSER) return;
 
         Material m = event.getItem().getType();
-
-        if (m.isBlock()) {
+        
+        if (items.containsKey(m)) {
+            handleCrop(event, m);
+        } else if (m.isBlock()) {
             Block targetBlock = event.getBlock().getRelative(getDirection(event.getVelocity()));
 
             if (targetBlock.getType() != Material.AIR) {
@@ -58,8 +60,6 @@ public class DispenseEventListener implements Listener {
             event.setCancelled(true);
             deleteItem(((Dispenser) event.getBlock().getState()).getInventory(), m);
             targetBlock.setType(m);
-        } else if (items.containsKey(m)) {
-            handleCrop(event, m);
         }
     }
 
