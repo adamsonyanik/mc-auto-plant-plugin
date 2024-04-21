@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Dispenser;
+import org.bukkit.block.data.Directional;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
@@ -14,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,6 +25,43 @@ public class DispenseEventListener implements Listener {
     }
 
     private static final HashMap<Material, GroundPlant> items = new HashMap<>();
+    private static final Material[] dontCareBlocks = new Material[]{
+            Material.SHULKER_BOX,
+            Material.WHITE_SHULKER_BOX,
+            Material.ORANGE_SHULKER_BOX,
+            Material.MAGENTA_SHULKER_BOX,
+            Material.LIGHT_BLUE_SHULKER_BOX,
+            Material.YELLOW_SHULKER_BOX,
+            Material.LIME_SHULKER_BOX,
+            Material.PINK_SHULKER_BOX,
+            Material.GRAY_SHULKER_BOX,
+            Material.LIGHT_GRAY_SHULKER_BOX,
+            Material.CYAN_SHULKER_BOX,
+            Material.PURPLE_SHULKER_BOX,
+            Material.BLUE_SHULKER_BOX,
+            Material.BROWN_SHULKER_BOX,
+            Material.GREEN_SHULKER_BOX,
+            Material.RED_SHULKER_BOX,
+            Material.BLACK_SHULKER_BOX,
+
+            Material.PLAYER_HEAD,
+            Material.PLAYER_WALL_HEAD,
+            Material.CREEPER_HEAD,
+            Material.CREEPER_WALL_HEAD,
+            Material.DRAGON_HEAD,
+            Material.DRAGON_WALL_HEAD,
+            Material.PIGLIN_HEAD,
+            Material.PIGLIN_WALL_HEAD,
+            Material.ZOMBIE_HEAD,
+            Material.ZOMBIE_WALL_HEAD,
+            Material.SKELETON_SKULL,
+            Material.SKELETON_WALL_SKULL,
+            Material.WITHER_SKELETON_SKULL,
+            Material.WITHER_SKELETON_WALL_SKULL,
+
+            Material.CARVED_PUMPKIN,
+            Material.TNT
+    };
 
     static {
         items.put(Material.POTATO, new GroundPlant(Material.POTATOES, List.of(Material.FARMLAND), false));
@@ -49,7 +88,11 @@ public class DispenseEventListener implements Listener {
         
         if (items.containsKey(m)) {
             handleCrop(event, m);
-        } else if (m.isBlock()) {
+        } else if (!m.isBlock())
+            return;
+        else if (Arrays.stream(dontCareBlocks).anyMatch(b -> b == m))
+            return;
+        else {
             Block targetBlock = event.getBlock().getRelative(getDirection(event.getVelocity()));
 
             if (targetBlock.getType() != Material.AIR) {
